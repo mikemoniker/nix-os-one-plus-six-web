@@ -1,1 +1,74 @@
-hello world
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nix-Bitcoin Installer for OnePlus 6</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Optional: link to CSS for styling -->
+    <script src="web-installer.js"></script>
+</head>
+<body>
+    <h1>Installing nix-bitcoin on a OnePlus 6 (enchilada)</h1>
+
+    <h2>Step 1: Build the Image</h2>
+    <button onclick="executeCommand('buildImage')">Run build commands</button>
+    <pre>
+        git clone https://github.com/chrisguida/mobile-nixos-oneplus-enchilada-template -b cguida/nix-bitcoin
+        cd mobile-nixos-oneplus-enchilada-template
+    </pre>
+    <p>If on NixOS, add the following to your configuration:</p>
+    <pre>
+    {
+      boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+    }
+    </pre>
+    <p>If on Ubuntu or another OS, build inside a VM:</p>
+    <pre>nix run .#binfmt-sdk-nixos-shell</pre>
+    <p>Now run the build:</p>
+    <pre>nix build .#packages.aarch64-linux.oneplus-enchilada-images</pre>
+
+    <h2>Step 2: Unlock Bootloader</h2>
+    <button onclick="executeCommand('unlockBootloader')">Run unlock commands</button>
+    <h3>Ensure correct software / firmware</h3>
+    <ul>
+        <li>Turn on the phone, connect to WiFi, and ensure Android 11 is installed.</li>
+    </ul>
+
+    <h3>Enable USB Debugging</h3>
+    <ul>
+        <li>Enable "USB Debugging" on the phone (Developer options).</li>
+    </ul>
+
+    <h3>Test Debugging Connection</h3>
+    <pre>adb devices</pre>
+
+    <h3>Unlock the bootloader</h3>
+    <pre>fastboot oem unlock</pre>
+
+    <h2>Step 3: Install NixOS</h2>
+    <button onclick="executeCommand('installNixOS')">Install NixOS</button>
+    <h3>Flash boot images</h3>
+    <pre>result/flash-critical.sh</pre>
+
+    <h3>Flash system image</h3>
+    <pre>fastboot flash userdata result/system.img</pre>
+
+    <h3>Erase dtbo partitions</h3>
+    <pre>fastboot erase dtbo_a</pre>
+    <pre>fastboot erase dtbo_b</pre>
+
+    <h3>Boot into NixOS</h3>
+    <ul>
+        <li>Press the power button to boot into NixOS.</li>
+        <li>Login as <code>defaultUser</code> with password "default".</li>
+    </ul>
+
+    <h2>Step 4: Remote Rebuild (Optional)</h2>
+    <button onclick="executeCommand('remoteRebuild')">Run remote rebuild</button>
+    <pre>nixos-rebuild --target-host root@nix-enchilada --flake .#oneplus-enchilada switch</pre>
+
+    <footer>
+        <p>Refer to the <a href="https://mobile.nixos.org/devices/oneplus-enchilada.html">Mobile NixOS docs</a> for more information.</p>
+    </footer>
+</body>
+</html>
