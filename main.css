@@ -1,0 +1,106 @@
+/* General page styling */
+body {
+    background-color: #181818;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #212121;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+header h1 {
+    color: #e0e0e0;
+    margin: 0;
+}
+
+/* Main content styling */
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+h1, h2 {
+    color: #ffffff;
+}
+
+h2 {
+    margin-top: 40px;
+    font-size: 1.8em;
+}
+
+p {
+    line-height: 1.6;
+}
+
+a {
+    color: #4da8da;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Button styling */
+button {
+    background-color: #1f74f4;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1463c0;
+}
+
+button:disabled {
+    background-color: #666666;
+    cursor: not-allowed;
+}
+
+/* Section spacing */
+section {
+    margin-bottom: 40px;
+}
+
+/* Error message styling */
+.error-message {
+    color: #ff4f4f;
+    font-weight: bold;
+}
+
+/* Progress bar styling */
+progress {
+    width: 100%;
+    height: 20px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #212121;
+    color: #999999;
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    main {
+        padding: 0 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 15px 0;
+    }
+}
