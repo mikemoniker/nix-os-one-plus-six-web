@@ -1,215 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
-    <head>
-        <meta charset="utf-8"/>
-        <title>NixOS Mobile Web installer</title>
-        <meta name="description" content="Web-based installer for a custom OS with Android app compatibility."/>
-        <meta name="theme-color" content="#212121"/>
-        <meta name="color-scheme" content="dark light"/>
-        <meta name="msapplication-TileColor" content="#ffffff"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <meta name="twitter:site" content="@CustomOS"/>
-        <meta name="twitter:creator" content="@CustomOS"/>
-        <meta property="og:title" content="Custom OS web installer"/>
-        <meta property="og:description" content="Web-based installer for a custom OS with Android app compatibility."/>
-        <meta property="og:type" content="website"/>
-        <meta property="og:image" content="path/to/your-image.png"/>
-        <meta property="og:image:width" content="512"/>
-        <meta property="og:image:height" content="512"/>
-        <meta property="og:image:alt" content="Custom OS logo"/>
-        <meta property="og:site_name" content="Custom OS"/>
-        <meta property="og:url" content="https://customos.org/install/web"/>
-        <link rel="canonical" href="https://customos.org/install/web"/>
-        <link rel="icon" href="/favicon.ico"/>
-        <link rel="icon" sizes="any" type="image/svg+xml" href="/favicon.svg"/>
-        <link rel="mask-icon" href="/mask-icon.svg" color="#1a1a1a"/>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-        <link rel="manifest" href="/manifest.webmanifest"/>
-        <link rel="stylesheet" href="main.css"/>
-        <script type="module" src="js/fastboot.min.mjs"></script>
-        <script src="js/web-install.js"></script>
-    </head>
-    <body>
-        <header>
-            <nav>
-                <!-- Add your header navigation or logo here -->
-                <h1>NixOS Mobile Web Installer</h1>
-            </nav>
-        </header>
-        <main id="web-install">
-            <h1>NixOS Web installer</h1>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Web installer | Install | GrapheneOS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script type="module" src="/js/fastboot/dist/fastboot.min.mjs"></script>
+    <script type="module" src="./js/web-install.js"></script>
+</head>
+<body>
+    <main id="web-install">
+        <h1>Web installer</h1>
 
-            <p>This is the WebUSB-based installer for the custom OS and is the recommended approach for most users.</p>
+        <p>This is the WebUSB-based installer for GrapheneOS and is the recommended approach
+        for most users.</p>
 
-            <section id="prerequisites">
-                <h2>Prerequisites</h2>
-                
-                <p>You need a computer for running the web installer with at least 2GB of free memory available and 32GB of free storage space. The web installer can be run on an Android phone or tablet, unlike the command-line installation.</p>
-            
-                <p>You need a USB cable for attaching the device to the computer performing the installation. Whenever possible, use the high-quality standards-compliant USB-C cable packaged with the device. If your computer doesn't have any USB-C ports, you'll need a high-quality USB-C to USB-A cable. You should avoid using a USB hub such as the front panel on a desktop computer case. Connect directly to a rear port on a desktop or the ports on a laptop. Many widely distributed USB cables and hubs are broken and are the most common source of issues for installing NixOS.</p>
-            
-                <p>Installing from an OS in a virtual machine is not recommended. USB passthrough is often not reliable. To rule out these problems, install from an OS running on bare metal. Virtual machines are also often configured to have overly limited memory and storage space.</p>
-            
-                <p>Officially supported operating systems for the web install method:</p>
-                
-                <ul>
-                    <li>Windows 10</li>
-                    <li>Windows 11</li>
-                    <li>macOS Ventura (13)</li>
-                    <li>macOS Sonoma (14)</li>
-                    <li>macOS Sequoia (15)</li>
-                    <li>Arch Linux</li>
-                    <li>Debian 11 (bullseye)</li>
-                    <li>Debian 12 (bookworm)</li>
-                    <li>Ubuntu 20.04 LTS</li>
-                    <li>Ubuntu 22.04 LTS</li>
-                    <li>Ubuntu 24.04 LTS</li>
-                    <li>Linux Mint 20 (follow Ubuntu 20.04 LTS instructions)</li>
-                    <li>Linux Mint 21 (follow Ubuntu 22.04 LTS instructions)</li>
-                    <li>Linux Mint 22 (follow Ubuntu 24.04 LTS instructions)</li>
-                    <li>Linux Mint Debian Edition 6 (follow Debian 12 instructions)</li>
-                    <li>ChromeOS</li>
-                    <li>NixOS</li>
-                    <li>Android 12 with Play Protect certification</li>
-                    <li>Android 13 with Play Protect certification</li>
-                    <li>Android 14 with Play Protect certification</li>
-                </ul>
-            
-                <p>Make sure your operating system is up-to-date before proceeding.</p>
-            
-                <p>Officially supported browsers for the web install method:</p>
-            
-                <ul>
-                    <li>Chromium (outside Ubuntu, since they ship a broken Snap package without working WebUSB)</li>
-                    <li>Vanadium (GrapheneOS)</li>
-                    <li>Google Chrome</li>
-                    <li>Microsoft Edge</li>
-                    <li>Brave (with Brave Shields disabled, since it caps storage usage at a low value to avoid fingerprinting available storage)</li>
-                </ul>
-            
-                <p>You should avoid Flatpak and Snap versions of browsers, as they're known to cause issues during the installation process.</p>
-            
-                <p>Make sure your browser is up-to-date before proceeding.</p>
-            
-                <p>Do not use Incognito or other private browsing modes. These modes usually prevent the web installer from having enough storage space to extract the downloaded release.</p>
-            
-                <p>You need one of the officially supported devices. To make sure that the device can be unlocked to install NixOS, avoid carrier variants of the devices. Carrier variants of Pixels use the same stock OS and firmware with a non-zero carrier id flashed onto the persist partition in the factory. The carrier id activates carrier-specific configuration in the stock OS including disabling carrier and bootloader unlocking. The carrier may be able to remotely disable this, but their support staff may not be aware and they probably won't do it. Get a carrier agnostic device to avoid the risk and potential hassle. If you CAN figure out a way to unlock a carrier device, it isn't a problem as NixOS can just ignore the carrier id and the hardware is the same.</p>
-            
-                <p>It's best practice to update the device before installing NixOS to have the latest firmware for connecting the device to the computer and performing the early flashing process. Either way, NixOS flashes the latest firmware early in the installation process.</p>
-            </section>
-            <!-- step one, enable oem unlocking in android settings -->
-            <section id="enabling-oem-unlocking">
-                <h2><a href="#enabling-oem-unlocking">Enabling OEM unlocking</a></h2>
+        <section id="unlocking-the-bootloader">
+            <h2>Unlocking the bootloader</h2>
+            <p>Unlock the bootloader to allow flashing the OS and firmware:</p>
+            <button id="unlock-bootloader-button" disabled>Unlock bootloader</button>
+            <p>The command needs to be confirmed on the device and will wipe all data. Use one
+            of the volume buttons to switch the selection to accepting it and the power button to
+            confirm.</p>
+            <p><strong id="unlock-bootloader-status"></strong></p>
+        </section>
 
-                <p>OEM unlocking needs to be enabled from within the operating system.</p>
+        <section id="obtaining-factory-images">
+            <h2>Obtaining factory images</h2>
+            <p>You need to obtain the GrapheneOS factory images for your device to proceed with
+            the installation process.</p>
+            <button id="download-release-button" disabled>Download release</button>
+            <div id="download-release-status-container" hidden>
+                <strong id="download-release-status"></strong>
+                <br/>
+                <progress id="download-release-progress" hidden max="1" value="0"></progress>
+            </div>
+        </section>
 
-                <p>Enable the developer options menu by going to <b>Settings&#160;<span
-                aria-label="and then">></span> About phone/tablet</b> and repeatedly
-                pressing the <b>Build number</b> menu entry until developer mode is enabled.</p>
+        <section id="flashing-factory-images">
+            <h2>Flashing factory images</h2>
+            <p>The initial install will be performed by flashing the factory images. This will
+            replace the existing OS installation and wipe all the existing data.</p>
+            <button id="flash-release-button" disabled>Flash release</button>
+            <div id="flash-release-status-container" hidden>
+                <strong id="flash-release-status"></strong>
+                <br/>
+                <progress id="flash-release-progress" hidden max="1" value="0"></progress>
+                <button id="flash-reconnect-button" hidden><strong>Reconnect device</strong></button>
+            </div>
+        </section>
 
-                <p>Next, go to <b>Settings&#160;<span aria-label="and then">></span>
-                System&#160;<span aria-label="and then">></span> Developer options</b> and
-                toggle on the <b>OEM unlocking</b> setting. On device model variants (SKUs) which
-                support being sold as locked devices by carriers, enabling <b>OEM unlocking</b>
-                requires internet access so that the stock OS can check if the device was sold as
-                locked by a carrier.</p>
-            </section>
-            <!-- step two, boot into bootloader -->
-            <section id="booting-into-the-bootloader-interface">
-                <h2><a href="#booting-into-the-bootloader-interface">Booting into the bootloader interface</a></h2>
+        <section id="locking-the-bootloader">
+            <h2>Locking the bootloader</h2>
+            <p>Locking the bootloader is important as it enables full verified boot.</p>
+            <button id="lock-bootloader-button" disabled>Lock bootloader</button>
+            <p>The command needs to be confirmed on the device and will wipe all data. Use one
+            of the volume buttons to switch the selection to accepting it and the power button to
+            confirm.</p>
+            <p><strong id="lock-bootloader-status"></strong></p>
+        </section>
 
-                <p>You need to boot your device into the bootloader interface. To do this, you need
-                to hold the power and volume up buttons while the device boots.</p>
-
-                <p>The easiest approach is to reboot the device and begin holding the power and volume up buttons
-                until it boots up into the bootloader interface.</p>
-            </section>
-
-            <!-- step three, plug it in -->
-            <section id="connecting-device">
-                <h2><a href="#connecting-device">Connecting the device</a></h2>
-
-                <p>Connect the device to the computer. On Linux, you'll need to do this again if
-                you didn't have the udev rules set up when you connected it.</p>
-            </section>
-
-            <!-- step 4, run commands/click button to unlock bootloader -->
-            <section id="unlocking-the-bootloader">
-                <h2>Unlocking the bootloader</h2>
-                <p>Unlock the bootloader to allow flashing the OS and firmware:</p>
-                <button id="unlock-bootloader-button">Unlock bootloader</button>
-            </section>
-            <!-- step 5, download zip file -->
-            <section id="obtaining-factory-images">
-                <h2><a href="#obtaining-factory-images">Obtaining NixOS image</a></h2>
-
-                <p>You need to obtain the NixOS factory images for your device to proceed with
-                the installation process.</p>
-
-                <p>Press the button below to start the download:</p>
-
-                <button id="download-release-button">Download release</button>
-
-                <p id="download-release-status-container" hidden="hidden">
-                    <strong id="download-release-status"></strong>
-                    <br/>
-                    <progress id="download-release-progress" hidden="hidden" max="1" value="0"></progress>
-                </p>
-            </section>
-            <!-- step 6, flash zip file -->
-            <section id="flashing-factory-images">
-                <h2><a href="#flashing-factory-images">Flashing factory images</a></h2>
-
-                <p>The initial install will be performed by flashing the factory images. This will
-                replace the existing OS installation and wipe all the existing data.</p>
-
-                <button id="flash-release-button">Flash release</button>
-
-
-                <p>Wait for the flashing process to complete. It will automatically handle
-                flashing the firmware, rebooting into the bootloader interface and flashing the OS.
-                Avoid interacting with the device until the flashing script is finished. Then,
-                proceed to <a href="#locking-the-bootloader">locking the bootloader</a> before using
-                the device as locking wipes the data again.</p>
-
-                <p id="flash-release-status-container" hidden="hidden">
-                    <strong id="flash-release-status"></strong>
-                    <br/>
-
-                    <!-- These appear as part of the status, one at a time -->
-                    <progress id="flash-release-progress" hidden="hidden" max="1" value="0"></progress>
-                    <button id="flash-reconnect-button" hidden="hidden"><strong>Reconnect device</strong></button>
-                </p>
-            </section>
-
-            <!-- step seven, lock the bootloader again -->
-            <section id="locking-the-bootloader">
-                <h2><a href="#locking-the-bootloader">Locking the bootloader</a></h2>
-
-                <p>Locking the bootloader is important as it enables full verified boot. It also
-                prevents using fastboot to flash, format or erase partitions.  Verified boot will
-                detect modifications to any of the OS partitions and it will prevent reading any
-                modified / corrupted data. If changes are detected, error correction data is used
-                to attempt to obtain the original data at which point it's verified again which
-                makes verified boot robust to non-malicious corruption.</p>
-
-                <p>In the bootloader interface, set it to locked:</p>
-
-                <button id="lock-bootloader-button">Lock bootloader</button>
-
-                <p>The command needs to be confirmed on the device and will wipe all data. Use one
-                of the volume buttons to switch the selection to accepting it and the power button
-                to confirm.</p>
-
-                <p><strong id="lock-bootloader-status"></strong></p>
-            </section>
-
-            
-
-        </main>
-        <footer>
-            <p>&copy; 2024 NixOS Mobile Install Squad. All rights reserved.</p>
-        </footer>
-        <script src="js/custom.js"></script> <!-- Custom JS file linked here -->
-    </body>
+        <section id="replacing-grapheneos">
+            <h2>Replacing GrapheneOS with the stock OS</h2>
+            <p>Before flashing stock factory images, erase the custom Android Verified Boot key:</p>
+            <button id="remove-custom-key-button" disabled>Remove non-stock key</button>
+            <p><strong id="remove-custom-key-status"></strong></p>
+        </section>
+    </main>
+</body>
 </html>
