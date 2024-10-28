@@ -1,6 +1,11 @@
 // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt MIT
 
 import * as fastboot from "./fastboot/dist/fastboot.min.mjs";
+// import JSZip from './jszip/dist/jszip.js';
+//import Tar from './tar-js/lib/tar.js';
+
+const JSZip = new JSZip();
+const Tar = new Tar(); // or however the tar library initializes
 
 const RELEASES_URL = "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com";
 
@@ -42,6 +47,30 @@ const releaseWakeLock = async () => {
         });
     }
 };
+
+// Helper function to convert .tar to .zip
+async function convertTarToZip(tarBlob) {
+    const zip = new window.JSZip();
+    const tar = new Tar();
+
+    // Read tar file as an array buffer
+    const arrayBuffer = await tarBlob.arrayBuffer();
+    const tarData = new Uint8Array(arrayBuffer);
+
+    // Parse the .tar file and add each entry to the zip archive
+    tar.extract(tarData).forEach((entry) => {
+        const fileName = entry.name;
+        const fileContent = new Uint8Array(entry.buffer);
+
+        // Add each file from the tar to the zip
+        zip.file(fileName, fileContent);
+    });
+
+    // Generate the zip blob
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    console.log("Conversion complete!");
+    return zipBlob;
+}
 
 // reacquires the wake lock should the visibility of the document change and the wake lock is released
 document.addEventListener("visibilitychange", async () => {
@@ -242,8 +271,10 @@ async function downloadRelease(setProgress) {
     } finally {
         setInstallerState({ state: InstallerState.DOWNLOADING_RELEASE, active: false });
         await releaseWakeLock();
+        console.log("alpha: inside of finally")
     }
     setProgress(`Downloaded ${latestRelease} release.`, 1.0);
+    console.log("beta: after finally block")
 }
 
 async function reconnectCallback() {
@@ -266,20 +297,37 @@ async function reconnectCallback() {
 }
 
 async function flashRelease(setProgress) {
+    console.log("alpha: inside of flashRelease")
     await requestWakeLock();
+    console.log("bravo: after requestWakeLock")
     await ensureConnected(setProgress);
+    console.log("charlie: after ensureConnected")
 
     setProgress("Finding release file...");
+    console.log("alpha: before getLatestRelease")
     let [latestRelease,] = await getLatestRelease();
+    console.log("bravo: after getLatestRelease")
     await blobStore.init();
+    console.log("charlie: after getLatestRelease")
     let blob = await blobStore.loadFile(latestRelease);
+    console.log("delta: after getLatestRelease")
+    console.log("echo blob: ", blob)
     if (blob === null) {
         throw new Error("You need to download a release first!");
     }
-
+    // Check if the blob is a .tar file and convert if necessary
+    if (blob.type === "application/x-tar") {
+        console.log("Converting .tar file to .zip...");
+        blob = await convertTarToZip(blob);
+        console.log("Converted to .zip:", blob);
+    }
+    console.log("foxtrot: before setProgress")
     setProgress("Flashing release...");
+    console.log("golf: after getLatestRelease")
     setInstallerState({ state: InstallerState.INSTALLING_RELEASE, active: true });
+    console.log("hotel: after setInstallerState")
     try {
+        console.log("india: before flashFactoryZip")
         await device.flashFactoryZip(blob, true, reconnectCallback,
             (action, item, progress) => {
                 let userAction = fastboot.USER_ACTION_MAP[action];
@@ -287,10 +335,14 @@ async function flashRelease(setProgress) {
                 setProgress(`${userAction} ${userItem}...`, progress);
             }
         );
+        console.log("juliet: after flashFactoryZip")
         // Remove legacy device checks here if they exist
     } finally {
+        console.log("kilo: inside of finally")
         setInstallerState({ state: InstallerState.INSTALLING_RELEASE, active: false });
+        console.log("lima: after setInstallerState")
         await releaseWakeLock();
+        console.log("mike: after releaseWakeLock")
     }
 
     return `Flashed ${latestRelease} to device.`;
