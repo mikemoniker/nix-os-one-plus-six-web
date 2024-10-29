@@ -12,7 +12,10 @@ const Buttons = {
     DOWNLOAD_RELEASE: "download-release",
     FLASH_RELEASE: "flash-release",
     LOCK_BOOTLOADER: "lock-bootloader",
-    REMOVE_CUSTOM_KEY: "remove-custom-key"
+    REMOVE_CUSTOM_KEY: "remove-custom-key",
+    FLASH_BOOT: "flash-boot",
+    FLASH_SYSTEM: "flash-system",
+    ERASE_DTBO: "erase-dtbo"
 };
 
 const InstallerState = {
@@ -42,6 +45,101 @@ const releaseWakeLock = async () => {
         });
     }
 };
+
+async function flashBoot(setProgress) {
+    if (!selectedBootFile) {
+        throw new Error("Please select a boot image file first");
+    }
+
+    await ensureConnected(setProgress);
+    setProgress("Flashing boot image to all slots...");
+
+    try {
+        // Flash to slot a
+        console.log("alpha Flashing boot to slot A...");
+        setProgress("Flashing boot to slot A...");
+        console.log("beta await device.upload('boot_a', selectedBootFile);");
+        await device.upload("boot_a", selectedBootFile);
+        console.log("charlie await device.runCommand('flash:boot_a');");
+        await device.runCommand("flash:boot_a");
+
+        // Flash to slot b
+        console.log("delta Flashing boot to slot B...");
+        setProgress("Flashing boot to slot B...");
+        console.log("echo await device.upload('boot_b', selectedBootFile);");
+        await device.upload("boot_b", selectedBootFile);
+        console.log("foxtrot await device.runCommand('flash:boot_b');");
+        await device.runCommand("flash:boot_b");
+        console.log("golf");
+
+    } catch (error) {
+        throw new Error(`Failed to flash boot image: ${error.message}`);
+    }
+
+    return "Boot image flashed to both slots successfully.";
+}
+async function flashSystem(setProgress) {
+    if (!selectedSystemFile) {
+        throw new Error("Please select a system image file first");
+    }
+
+    await ensureConnected(setProgress);
+    setProgress("Flashing system image to userdata...");
+
+    try {
+        await device.upload("userdata", selectedSystemFile);
+        await device.runCommand("flash:userdata");
+    } catch (error) {
+        throw new Error(`Failed to flash system image: ${error.message}`);
+    }
+
+    return "System image flashed to userdata successfully.";
+}
+async function eraseDtbo(setProgress) {
+    await ensureConnected(setProgress);
+    
+    try {
+        setProgress("Erasing DTBO slot A...");
+        await device.runCommand("erase:dtbo_a");
+        
+        setProgress("Erasing DTBO slot B...");
+        await device.runCommand("erase:dtbo_b");
+    } catch (error) {
+        throw new Error(`Failed to erase DTBO: ${error.message}`);
+    }
+
+    return "DTBO erased from both slots successfully.";
+}
+function setupCustomFileInputs() {
+    // Setup boot image file input
+    const bootFileInput = document.getElementById('boot-file-input');
+    bootFileInput.addEventListener('change', (event) => {
+        if (event.target.files.length > 0) {
+            selectedBootFile = event.target.files[0];
+            setButtonState({ id: 'flash-boot', enabled: true });
+        } else {
+            selectedBootFile = null;
+            setButtonState({ id: 'flash-boot', enabled: false });
+        }
+    });
+
+    // Setup system image file input
+    const systemFileInput = document.getElementById('system-file-input');
+    systemFileInput.addEventListener('change', (event) => {
+        if (event.target.files.length > 0) {
+            selectedSystemFile = event.target.files[0];
+            setButtonState({ id: 'flash-system', enabled: true });
+        } else {
+            selectedSystemFile = null;
+            setButtonState({ id: 'flash-system', enabled: false });
+        }
+    });
+}
+
+// Add these variables to store selected files
+let selectedBootFile = null;
+let selectedSystemFile = null;
+
 
 // reacquires the wake lock should the visibility of the document change and the wake lock is released
 document.addEventListener("visibilitychange", async () => {
@@ -331,6 +429,10 @@ async function lockBootloader(setProgress) {
 }
 
 function addButtonHook(id, callback) {
+    const buttonId = `${id}-button`;
+    const buttonz = document.getElementById(buttonId);
+    console.log(`Looking for button: ${buttonId}, found: ${buttonz !== null}`);  // Add this debug line
+
     let statusContainer = document.getElementById(`${id}-status-container`);
     let statusField = document.getElementById(`${id}-status`);
     let progressBar = document.getElementById(`${id}-progress`);
@@ -421,6 +523,18 @@ if ("usb" in navigator) {
     addButtonHook(Buttons.FLASH_RELEASE, flashRelease);
     addButtonHook(Buttons.LOCK_BOOTLOADER, lockBootloader);
     addButtonHook(Buttons.REMOVE_CUSTOM_KEY, eraseNonStockKey);
+
+    // Add the new button hooks
+    addButtonHook(Buttons.FLASH_BOOT, flashBoot);
+    addButtonHook(Buttons.FLASH_SYSTEM, flashSystem);
+    addButtonHook(Buttons.ERASE_DTBO, eraseDtbo);
+    
+    // Setup the file inputs
+    setupCustomFileInputs();
+    
+    // Initially disable flash buttons until files are selected
+    setButtonState({ id: Buttons.FLASH_BOOT, enabled: true });
+    setButtonState({ id: Buttons.FLASH_SYSTEM, enabled: true });
 } else {
     console.log("WebUSB unavailable");
 }

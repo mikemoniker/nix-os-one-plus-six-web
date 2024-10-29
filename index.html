@@ -48,6 +48,39 @@
                 <button id="flash-reconnect-button" hidden><strong>Reconnect device</strong></button>
             </div>
         </section>
+        <section id="custom-flash-operations">
+            <h2>Custom Flash Operations</h2>
+            
+            <div class="flash-operation">
+                <h3>Flash Boot Image</h3>
+                <input type="file" id="boot-file-input" accept=".img"/>
+                <button id="flash-boot-button" >Flash Boot to All Slots</button>
+                <div id="flash-boot-status-container" hidden>
+                    <strong id="flash-boot-status"></strong>
+                    <br/>
+                    <progress id="flash-boot-progress" hidden max="1" value="0"></progress>
+                </div>
+            </div>
+        
+            <div class="flash-operation">
+                <h3>Flash System Image</h3>
+                <input type="file" id="system-file-input" accept=".img"/>
+                <button id="flash-system-button" >Flash System to Userdata</button>
+                <div id="flash-system-status-container" hidden>
+                    <strong id="flash-system-status"></strong>
+                    <br/>
+                    <progress id="flash-system-progress" hidden max="1" value="0"></progress>
+                </div>
+            </div>
+        
+            <div class="flash-operation">
+                <h3>Erase DTBO</h3>
+                <button id="erase-dtbo-button">Erase DTBO (Both Slots)</button>
+                <div id="erase-dtbo-status-container" hidden>
+                    <strong id="erase-dtbo-status"></strong>
+                </div>
+            </div>
+        </section>
 
         <section id="locking-the-bootloader">
             <h2>Locking the bootloader</h2>
